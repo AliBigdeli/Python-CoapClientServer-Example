@@ -8,12 +8,22 @@ from exampleresources import BasicResource, Long, Separate, Storage, Big, voidRe
     MultipleEncodingResource, AdvancedResource, AdvancedResourceSeparate
 
 __author__ = 'Giacomo Tanganelli'
+from coapthon.resources.resource import Resource
+class Test(Resource):
+    def __init__(self, name="test", coap_server=None):
+        super(Test, self).__init__(name, coap_server, visible=True, observable=True, allow_children=True)
+        self.payload = "Storage Resource for PUT, POST and DELETE"
+
+    def render_GET(self, request):
+        print('got request',request)
+        return self
 
 
 class CoAPServer(CoAP):
     def __init__(self, host, port, multicast=False):
         CoAP.__init__(self, (host, port), multicast)
         self.add_resource('basic/', BasicResource())
+        self.add_resource('test/', Test())
         self.add_resource('storage/', Storage())
         self.add_resource('separate/', Separate())
         self.add_resource('long/', Long())
@@ -39,7 +49,8 @@ def main(argv):  # pragma: no cover
     port = 5683
     multicast = False
     try:
-        opts, args = getopt.getopt(argv, "hi:p:m", ["ip=", "port=", "multicast"])
+        opts, args = getopt.getopt(
+            argv, "hi:p:m", ["ip=", "port=", "multicast"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
